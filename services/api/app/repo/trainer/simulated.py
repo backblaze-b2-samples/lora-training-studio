@@ -1,7 +1,9 @@
-"""Default, zero-dependency trainer.
+"""Zero-dependency fallback trainer (opt in via `TRAINER_PROVIDER=simulated`).
 
-`SimulatedTrainer` exercises the entire pipeline on a stock laptop with no
-GPU and no API keys. It does NOT train anything real — it emits a synthetic
+`SimulatedTrainer` exercises the entire pipeline on a stock laptop with no GPU
+and no API keys — the fallback for environments without the local trainer's ML
+stack (the default trainer is the real on-device one in `local.py`). It does
+NOT train anything real — it emits a synthetic
 decreasing loss curve over time, writes placeholder checkpoint blobs and a
 stub `.safetensors` LoRA, and renders sample-gallery PNGs with Pillow so the
 B2 storage lifecycle (dataset -> captions -> checkpoints -> LoRA -> samples)

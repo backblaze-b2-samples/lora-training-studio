@@ -1,9 +1,9 @@
-<!-- last_verified: 2026-06-05 -->
+<!-- last_verified: 2026-06-09 -->
 # LoRA Training Studio
 
 An end-to-end, browser-based **LoRA fine-tuning workflow** for image models, with every artifact in the lifecycle stored on **[Backblaze B2](https://www.backblaze.com/sign-up/ai-cloud-storage?utm_source=github&utm_medium=referral&utm_campaign=ai_artifacts&utm_content=b2ai-lora-training-studio)**. Upload a handful of training images, caption them, launch a run, watch the loss curve and sample gallery fill in, then download the trained `.safetensors` — the source dataset, per-image captions, intermediate checkpoints, the final LoRA, and every sample image are all written to and read back from B2 over the S3-compatible API, keyed under one prefix per run.
 
-**Training is simulated by default**, so the whole pipeline runs on a stock laptop with **no GPU and no API keys** — the simulated trainer emits placeholder checkpoints, a stub `.safetensors`, and Pillow-rendered sample images with a synthetic loss curve. The B2 storage layer is the real, production-shaped part. Cloud training (Replicate) and Claude-vision captioning are optional, clearly-marked extension points.
+**Training runs a real on-device LoRA fine-tune by default** — `TRAINER_PROVIDER=local` trains a genuine Stable Diffusion 1.5 LoRA with diffusers + peft on your GPU/Apple-Silicon (MPS), writing a real `.safetensors` and real sample images to B2. It needs the ML stack installed (`pip install -r services/api/requirements-local-trainer.txt`) and a GPU/MPS backend. For a zero-config run with **no GPU and no API keys**, set `TRAINER_PROVIDER=simulated`: the simulated trainer emits placeholder checkpoints, a stub `.safetensors`, and Pillow-rendered sample images with a synthetic loss curve. The B2 storage layer is the real, production-shaped part either way. Cloud training (Replicate) and Claude-vision captioning are optional, clearly-marked extension points.
 
 **What you get out of the box:**
 - Guided run pipeline: dataset → captions → training → samples → download, tracked as one state machine
@@ -73,8 +73,17 @@ pnpm install
 cd services/api
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+# The default trainer is the real on-device SD 1.5 LoRA — install its ML stack
+# (torch/diffusers/peft). Requires a GPU or Apple-Silicon (MPS) backend.
+pip install -r requirements-local-trainer.txt
 cd ../..
 ```
+
+> The default `local` trainer downloads the ~4 GB SD 1.5 base on first run and a
+> training run takes a few minutes; see [Trainer & Captioner Providers](docs/features/trainer-providers.md)
+> for `LOCAL_*` tuning. **No GPU?** Skip the second `pip install` and set
+> `TRAINER_PROVIDER=simulated` in `.env` for a zero-dependency run (placeholder
+> artifacts + a synthetic loss curve in seconds).
 
 **3. Add your B2 credentials**
 
@@ -94,8 +103,8 @@ Open `.env` in your editor. Then head to the [Backblaze B2 dashboard](https://se
 
 > Want a walkthrough? See the docs for [creating a bucket](https://www.backblaze.com/docs/cloud-storage-create-and-manage-buckets?utm_source=github&utm_medium=referral&utm_campaign=ai_artifacts&utm_content=b2ai-lora-training-studio) and [creating app keys](https://www.backblaze.com/docs/cloud-storage-create-and-manage-app-keys?utm_source=github&utm_medium=referral&utm_campaign=ai_artifacts&utm_content=b2ai-lora-training-studio).
 
-**Optional — only if you want them (the defaults need neither):**
-- **Real on-device training** — set `TRAINER_PROVIDER=local` to fine-tune a genuine Stable Diffusion 1.5 LoRA on your own GPU/Apple-Silicon (MPS) instead of the simulated default. Install the ML stack first: `pip install -r services/api/requirements-local-trainer.txt`. The first run downloads the ~4 GB base model; a run then takes minutes (not seconds) and writes a real `.safetensors` + real sample images to B2. See [Trainer & Captioner Providers](docs/features/trainer-providers.md) for tuning (`LOCAL_*` settings).
+**Optional:**
+- **Zero-config simulated training** — set `TRAINER_PROVIDER=simulated` to skip the ML stack and GPU entirely. The simulated trainer emits placeholder checkpoints, a stub `.safetensors`, and Pillow-rendered samples with a synthetic loss curve in a few seconds — same B2 layout as the real trainer. Handy for demos, CI, or no-GPU machines.
 - `ANTHROPIC_API_KEY` — enables Claude-vision auto-captioning. Set `CAPTIONER_PROVIDER=claude` to use it (the default captioner is offline/templated).
 - `REPLICATE_API_TOKEN` — placeholder for the optional Replicate cloud trainer (extension stub, not wired).
 
@@ -114,10 +123,10 @@ Frontend at `localhost:3000`, API at `localhost:8000`. Create a run from **Train
 - [LoRA Pipeline](docs/features/lora-pipeline.md) — the end-to-end run state machine
 - [Dataset Images](docs/features/dataset-images.md) — per-run image upload, thumbnails, add/remove
 - [Captioning](docs/features/captioning.md) — manual editor + optional offline/Claude auto-caption
-- [Training](docs/features/training.md) — the trainer adapter, simulated default, progress/loss/checkpoints
+- [Training](docs/features/training.md) — the trainer adapter, real on-device default + simulated fallback, progress/loss/checkpoints
 - [Sample Gallery](docs/features/sample-gallery.md) — sample image generation + presigned viewing
 - [LoRA Library](docs/features/lora-library.md) — the scoped explorer, run detail, and download
-- [Trainer & Captioner Providers](docs/features/trainer-providers.md) — the adapter pattern (simulated/Replicate, templated/Claude)
+- [Trainer & Captioner Providers](docs/features/trainer-providers.md) — the adapter pattern (local/simulated/Replicate trainers, templated/Claude captioners)
 - [Dashboard](docs/features/dashboard.md) — run metrics + B2 storage breakdown
 - [File Browser](docs/features/file-browser.md) — full-bucket explorer (kept from the starter kit)
 - [File Upload](docs/features/file-upload.md) — generic drag-and-drop upload surface

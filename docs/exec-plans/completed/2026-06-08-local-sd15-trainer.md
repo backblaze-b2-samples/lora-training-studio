@@ -1,5 +1,11 @@
 # Plan: Real local LoRA training (SD 1.5 on Apple Silicon / MPS)
 
+> **Superseded in part (2026-06-09):** the "default stays `simulated`" decision
+> below was later reversed — `local` is now the default trainer
+> (`TRAINER_PROVIDER=local`), with `simulated` as the opt-in zero-config
+> fallback. See `2026-06-09-local-trainer-default.md`. The rest of this plan
+> (the trainer implementation) still stands.
+
 ## Goal
 
 Add a real, opt-in trainer that actually fine-tunes a LoRA on the user's
@@ -96,5 +102,7 @@ adapter is a drop-in swap for `SimulatedTrainer`.
   simulated). Acceptable for single-user local; document it.
 - First run downloads ~4 GB (SD 1.5) from HF Hub; cached thereafter.
 - Keep `local.py` (+ helper) each under 300 lines.
-- Do **not** change the default provider — `simulated` stays the zero-config
-  default so `pnpm dev` runs with no GPU and no keys.
+- ~~Do **not** change the default provider — `simulated` stays the zero-config
+  default so `pnpm dev` runs with no GPU and no keys.~~ **Reversed 2026-06-09:**
+  `local` is now the default; `simulated` is the opt-in fallback. See
+  `2026-06-09-local-trainer-default.md`.

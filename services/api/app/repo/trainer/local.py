@@ -1,17 +1,20 @@
 """Real on-device LoRA trainer — Stable Diffusion 1.5 via diffusers + peft.
 
-Opt-in via `TRAINER_PROVIDER=local`. Unlike `SimulatedTrainer`, this fine-tunes
-a genuine LoRA and writes real `.safetensors` weights and real generated sample
-images to B2 — the storage layout is identical, so it is a drop-in swap for the
-simulated trainer behind the same `Trainer` contract.
+The **default** trainer (`TRAINER_PROVIDER=local`). Unlike `SimulatedTrainer`,
+this fine-tunes a genuine LoRA and writes real `.safetensors` weights and real
+generated sample images to B2 — the storage layout is identical, so it is a
+drop-in swap for the simulated fallback behind the same `Trainer` contract.
 
 The heavy ML stack lives in `_sd_lora` and is imported **lazily inside
 `train()`** (mirroring how `replicate.py` defers its SDK), so importing this
-adapter — or running the default simulated path — never loads torch.
+adapter never loads torch — a fresh `pnpm dev` still starts with no GPU or keys
+even though `local` is the default.
 
 Target hardware is Apple Silicon (MPS); see `_sd_lora` for the fp32 constraint.
 Training is a multi-minute, CPU/GPU-bound `BackgroundTasks` job and the first
-run downloads the ~4 GB base model from HuggingFace.
+run downloads the ~4 GB base model from HuggingFace. Requires the optional ML
+deps (`pip install -r services/api/requirements-local-trainer.txt`); set
+`TRAINER_PROVIDER=simulated` for a zero-dependency run.
 """
 
 import logging

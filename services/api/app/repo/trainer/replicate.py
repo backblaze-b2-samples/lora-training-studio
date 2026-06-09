@@ -35,7 +35,7 @@ class ReplicateTrainer:
         if not settings.replicate_api_token:
             raise RuntimeError(
                 "trainer_provider=replicate requires REPLICATE_API_TOKEN. "
-                "The default trainer (simulated) needs no key."
+                "The simulated trainer (TRAINER_PROVIDER=simulated) needs no key."
             )
         raise NotImplementedError(
             "ReplicateTrainer is an extension stub. Wire dataset upload, "

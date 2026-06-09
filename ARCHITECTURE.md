@@ -13,7 +13,7 @@
 - **services/api/** — FastAPI backend (layered architecture)
   - Run lifecycle CRUD, dataset management, captioning, and training orchestration
   - B2 S3 integration via boto3 (contained in `repo/`)
-  - Trainer adapters (simulated default, Replicate stub) and captioner adapters (templated default, Claude optional)
+  - Trainer adapters (local SD 1.5 default, simulated fallback, Replicate stub) and captioner adapters (templated default, Claude optional)
   - Image metadata extraction (dimensions, EXIF) for dataset images
   - Health check with B2 connectivity, structured JSON logging, Prometheus-format metrics
 - **packages/shared/** — TypeScript type definitions mirroring the Pydantic models
@@ -88,7 +88,7 @@ services/api/
     repo/                  B2 S3 client + run store + trainer/captioner adapters
       b2_client.py         S3 helpers (put/get/list/delete/presign)
       runs_store.py        Manifest read/write + prefix-scoped helpers
-      trainer/             base.py, simulated.py (default), replicate.py (stub)
+      trainer/             base.py, local.py + _sd_lora.py (real SD 1.5, default), simulated.py (fallback), replicate.py (stub)
       captioner/           base.py, templated.py (default), claude.py (optional)
     service/               Business logic (runs, captioning, training, runs_stats, files, upload, metadata)
     runtime/               FastAPI route handlers (runs, files, upload, health, metrics)

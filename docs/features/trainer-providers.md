@@ -1,8 +1,8 @@
-<!-- last_verified: 2026-06-08 -->
+<!-- last_verified: 2026-06-09 -->
 # Feature: Trainer & Captioner Providers
 
 ## Purpose
-The adapter pattern that keeps training and captioning pluggable: a zero-config default plus optional, clearly-marked real/cloud/vision extensions — with the external SDKs contained in `repo/`.
+The adapter pattern that keeps training and captioning pluggable: the trainer defaults to a real on-device SD 1.5 LoRA (with a zero-config simulated fallback) and the captioner to an offline default, plus optional cloud/vision extensions — with the external SDKs contained in `repo/`.
 
 ## Used By
 - API (indirectly): training and captioning services select an adapter per run
@@ -11,8 +11,8 @@ The adapter pattern that keeps training and captioning pluggable: a zero-config 
 ## Core Functions
 - `services/api/app/repo/trainer/__init__.py` — `get_trainer()` factory
 - `services/api/app/repo/trainer/base.py` — `Trainer` protocol, `TrainerStep`, `TrainerResult`
-- `services/api/app/repo/trainer/simulated.py` — default, no GPU/keys
-- `services/api/app/repo/trainer/local.py` — optional **real** trainer: SD 1.5 LoRA on-device (MPS/CUDA)
+- `services/api/app/repo/trainer/simulated.py` — zero-config fallback, no GPU/keys
+- `services/api/app/repo/trainer/local.py` — **default** real trainer: SD 1.5 LoRA on-device (MPS/CUDA)
 - `services/api/app/repo/trainer/_sd_lora.py` — diffusers + peft training internals for `local`
 - `services/api/app/repo/trainer/replicate.py` — optional extension stub (not wired)
 - `services/api/app/repo/captioner/__init__.py` — `get_captioner()` factory
@@ -24,7 +24,7 @@ The adapter pattern that keeps training and captioning pluggable: a zero-config 
 - Captioner factory + protocol: `services/api/app/repo/captioner/`
 
 ## Inputs
-- `TRAINER_PROVIDER` (default `simulated`; `local` for real on-device SD 1.5; `replicate` for the stub), `REPLICATE_API_TOKEN`
+- `TRAINER_PROVIDER` (default `local` — real on-device SD 1.5, needs the ML deps + a GPU/MPS; `simulated` for the zero-config fallback; `replicate` for the stub), `REPLICATE_API_TOKEN`
 - `local`-only: `LOCAL_SD_MODEL_ID` (default `stable-diffusion-v1-5/stable-diffusion-v1-5`), `LOCAL_TRAIN_RESOLUTION` (512), `LOCAL_MILESTONES` (4), `LOCAL_SAMPLES_PER_MILESTONE` (4) — requires `pip install -r requirements-local-trainer.txt`
 - `CAPTIONER_PROVIDER` (default `templated`; `claude`), `ANTHROPIC_API_KEY`, `CLAUDE_CAPTION_MODEL` (`claude-haiku-4-5`)
 
@@ -49,8 +49,8 @@ The adapter pattern that keeps training and captioning pluggable: a zero-config 
 - Not applicable (backend selection)
 
 ## Verification
-- Test files: `services/api/tests/test_runs.py` (default trainer/captioner exercised end-to-end), `tests/test_structure.py::test_external_sdks_only_in_repo`
-- Required cases: default path completes a run; SDK containment enforced
+- Test files: `services/api/tests/test_runs.py` (simulated trainer/captioner exercised end-to-end — the fixture pins `TRAINER_PROVIDER=simulated`), `tests/test_structure.py::test_external_sdks_only_in_repo`
+- Required cases: the simulated path completes a run end-to-end; SDK containment enforced
 - Quick verify command: `pnpm check:structure`
 - Full verify command: `pnpm lint && pnpm lint:api && pnpm test:api && pnpm check:structure`
 - Pass criteria: all pytest tests green, structural test enforces SDK containment

@@ -1,9 +1,10 @@
 """Stable Diffusion 1.5 LoRA training internals (diffusers + peft, MPS/fp32).
 
 These helpers hold every heavy ML dependency (torch, diffusers, transformers,
-peft, torchvision). The module is imported *only* by `LocalTrainer.train()`
-when `TRAINER_PROVIDER=local`, so the default (simulated) path never loads
-torch. fp32 is mandatory on Apple's Metal (MPS) backend: fp16 produces NaN
+peft, torchvision). The module is imported *only* by `LocalTrainer.train()`,
+so merely importing the trainer package never loads torch — even though
+`local` is the default provider, its ML stack loads only when a run starts.
+fp32 is mandatory on Apple's Metal (MPS) backend: fp16 produces NaN
 loss and bf16 is unsupported for training, so all modules load in float32.
 
 Only the UNet attention projections get LoRA adapters; the VAE and text encoder

@@ -8,8 +8,10 @@ This is the authoritative control surface for all coding agents. Read this first
 LoRA Training Studio is a browser-based LoRA fine-tuning workflow. Every
 artifact — dataset images, captions, checkpoints, the final `.safetensors`,
 and sample images — is persisted to Backblaze B2 under one prefix per run
-(`lora-training/{run_id}/...`). Training is **simulated by default** (no GPU,
-no API keys); see [ARCHITECTURE.md](ARCHITECTURE.md).
+(`lora-training/{run_id}/...`). Training runs a **real on-device SD 1.5 LoRA by
+default** (`TRAINER_PROVIDER=local`; needs the ML stack + a GPU/MPS) — set
+`TRAINER_PROVIDER=simulated` for a zero-config run with no GPU and no API keys.
+See [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ```
 apps/web/          Next.js 16 frontend (App Router, Tailwind v4, shadcn/ui)
@@ -18,7 +20,7 @@ apps/web/          Next.js 16 frontend (App Router, Tailwind v4, shadcn/ui)
   src/components/runs/   Run pipeline UI (stepper, dataset, captions, monitor, gallery)
 services/api/      FastAPI backend (layered: types/config/repo/service/runtime)
   app/repo/runs_store.py     Manifest read/write + prefix-scoped run helpers
-  app/repo/trainer/          Trainer adapters (simulated default, replicate stub)
+  app/repo/trainer/          Trainer adapters (local SD 1.5 default, simulated fallback, replicate stub)
   app/repo/captioner/        Captioner adapters (templated default, claude optional)
   app/service/{runs,captioning,training,runs_stats}.py
   app/runtime/runs.py        Run pipeline router
@@ -46,7 +48,7 @@ rename, or replace them.
 - Update the relevant `docs/features/*.md` in the same PR as any change (see §9).
 
 **Trainer & Captioner adapter invariant**
-- External training/captioning SDKs are contained the same way `boto3` is: `anthropic` (Claude captioner), `replicate` (cloud trainer), and the **real local trainer's ML stack** (`torch`/`diffusers`/`transformers`/`peft`/`torchvision`, in `repo/trainer/local.py` + `_sd_lora.py`) are imported **lazily, only inside their `repo/` adapters** (`repo/trainer/`, `repo/captioner/`). The default trainer (`SimulatedTrainer`) and captioner (`TemplatedCaptioner`) need none of them — a fresh `pnpm dev` runs with no GPU and no API keys. The `local` trainer is opt-in (`TRAINER_PROVIDER=local`) and needs `pip install -r services/api/requirements-local-trainer.txt`. This is mechanically enforced (see §5).
+- External training/captioning SDKs are contained the same way `boto3` is: `anthropic` (Claude captioner), `replicate` (cloud trainer), and the **local trainer's ML stack** (`torch`/`diffusers`/`transformers`/`peft`/`torchvision`, in `repo/trainer/local.py` + `_sd_lora.py`) are imported **lazily, only inside their `repo/` adapters** (`repo/trainer/`, `repo/captioner/`) — `local`'s stack loads inside `train()`, so importing the package never pulls in torch and a fresh `pnpm dev` still *starts* with no GPU or keys. The **default** trainer is `local` (real SD 1.5 LoRA): running a training job needs `pip install -r services/api/requirements-local-trainer.txt` and a GPU/MPS. `SimulatedTrainer` + `TemplatedCaptioner` need none of the optional deps and are the zero-config fallback (`TRAINER_PROVIDER=simulated`). This is mechanically enforced (see §5).
 
 ## 3. Architectural Invariants
 

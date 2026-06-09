@@ -1,10 +1,10 @@
 """Trainer adapter selection.
 
 `get_trainer()` returns the adapter named by `settings.trainer_provider`.
-Default is the simulated trainer (no GPU, no keys). "local" is a real on-device
-SD 1.5 LoRA trainer (diffusers + peft); "replicate" is a not-wired stub. Both
-optional adapters are imported lazily so their heavy deps stay off the default
-path.
+Default is "local" — a real on-device SD 1.5 LoRA trainer (diffusers + peft)
+that lazily imports its ML stack inside `train()`. "simulated" is the
+zero-dependency fallback (no GPU, no keys); "replicate" is a not-wired stub.
+Heavy deps and optional SDKs stay off the import path until a run starts.
 """
 
 from app.config import settings

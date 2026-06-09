@@ -30,12 +30,13 @@ Set these on the API service:
 | `B2_APPLICATION_KEY` | Your B2 key |
 | `B2_BUCKET_NAME` | Your bucket name |
 | `API_CORS_ORIGINS` | Your web service URL (e.g., `https://web-production-xxx.up.railway.app`) |
+| `TRAINER_PROVIDER` | Set to `simulated` — Railway has no GPU and the build doesn't install the local-trainer ML stack, so the default `local` trainer can't run a job here |
 
 **Optional** (the defaults need neither):
 
 | Variable | Value |
 |----------|-------|
-| `REPLICATE_API_TOKEN` | Only if you wire the optional Replicate trainer (default trainer is simulated, no GPU/keys) |
+| `REPLICATE_API_TOKEN` | Only if you wire the optional Replicate trainer (extension stub, not wired) |
 | `ANTHROPIC_API_KEY` | Only to enable Claude-vision auto-captioning (default captioner is offline/templated) |
 
 Set this on the Web service:

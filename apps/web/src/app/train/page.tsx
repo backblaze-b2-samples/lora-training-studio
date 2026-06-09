@@ -18,8 +18,9 @@ import {
 import { useCreateRun } from "@/lib/queries";
 
 const BASE_MODELS = [
-  { value: "sdxl-base-1.0", label: "SDXL Base 1.0" },
+  // SD 1.5 first: it's the model the default (local) trainer actually fine-tunes.
   { value: "sd-1.5", label: "Stable Diffusion 1.5" },
+  { value: "sdxl-base-1.0", label: "SDXL Base 1.0" },
   { value: "flux.1-dev", label: "FLUX.1 [dev]" },
 ];
 
@@ -67,8 +68,8 @@ export default function TrainPage() {
         <h1 className="page-title">New run</h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
           Name the run and set its training config. You&apos;ll add images and
-          captions on the next screen. Training is simulated by default — no GPU
-          or API keys required.
+          captions on the next screen. Training runs a real on-device SD 1.5
+          LoRA by default — set TRAINER_PROVIDER=simulated for a no-GPU demo.
         </p>
       </div>
 

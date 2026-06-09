@@ -28,16 +28,17 @@ class Settings(BaseSettings):
     max_dataset_image_size: int = 25 * 1024 * 1024  # 25MB
 
     # --- Training engine selection ---
-    # Which Trainer adapter drives a run. "simulated" (the default) needs no
-    # GPU and no API keys — it emits placeholder checkpoints, a stub
-    # .safetensors LoRA, and Pillow-rendered sample images with a synthetic
-    # loss curve, so the whole pipeline is exercised on a stock laptop.
-    # "replicate" is an optional, not-wired extension stub (see
-    # repo/trainer/replicate.py) behind REPLICATE_API_TOKEN. "local" is a real,
-    # opt-in trainer that fine-tunes a Stable Diffusion 1.5 LoRA on-device with
+    # Which Trainer adapter drives a run. "local" (the default) is a real,
+    # on-device trainer that fine-tunes a Stable Diffusion 1.5 LoRA with
     # diffusers + peft (see repo/trainer/local.py); it needs the optional ML
-    # deps and a GPU/MPS backend, so it is never the default.
-    trainer_provider: str = "simulated"
+    # deps (pip install -r requirements-local-trainer.txt) and a GPU/MPS
+    # backend to run a training job. "simulated" is the zero-config fallback —
+    # no GPU and no API keys — it emits placeholder checkpoints, a stub
+    # .safetensors LoRA, and Pillow-rendered sample images with a synthetic
+    # loss curve, so the whole pipeline can be exercised on a stock laptop.
+    # "replicate" is an optional, not-wired extension stub (see
+    # repo/trainer/replicate.py) behind REPLICATE_API_TOKEN.
+    trainer_provider: str = "local"
     replicate_api_token: str = ""
 
     # Synthetic-trainer pacing: seconds of wall-clock per simulated step.

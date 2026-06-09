@@ -1,8 +1,8 @@
-<!-- last_verified: 2026-06-08 -->
+<!-- last_verified: 2026-06-09 -->
 # Feature: Training
 
 ## Purpose
-Drive a run through training, streaming step progress, a loss curve, intermediate checkpoints, and sample images to B2 — simulated by default so it runs anywhere, with an opt-in **real** on-device trainer (SD 1.5 LoRA) for those with a GPU/MPS.
+Drive a run through training, streaming step progress, a loss curve, intermediate checkpoints, and sample images to B2 — a **real** on-device SD 1.5 LoRA trainer by default (needs a GPU/MPS + the ML stack), with a zero-config simulated fallback (`TRAINER_PROVIDER=simulated`) that runs anywhere.
 
 ## Used By
 - UI: `/library/[runId]` Training tab
@@ -11,7 +11,7 @@ Drive a run through training, streaming step progress, a loss curve, intermediat
 
 ## Core Functions
 - `services/api/app/service/training.py` — `start_training`, `run_training_job`
-- `services/api/app/repo/trainer/` — `simulated.py` (default), `local.py` + `_sd_lora.py` (real SD 1.5 LoRA, opt-in), `replicate.py` (stub)
+- `services/api/app/repo/trainer/` — `local.py` + `_sd_lora.py` (real SD 1.5 LoRA, **default**), `simulated.py` (zero-config fallback), `replicate.py` (stub)
 - `apps/web/src/components/runs/training-monitor.tsx`
 
 ## Canonical Files
@@ -31,7 +31,7 @@ Drive a run through training, streaming step progress, a loss curve, intermediat
 - On completion: final samples + LoRA written, status → `complete`
 - The UI polls `GET /progress` (via `useRunProgress`) while in flight
 - The simulated trainer emits a synthetic decreasing loss curve over a few wall-clock seconds — no GPU, no keys
-- The optional `local` trainer (`TRAINER_PROVIDER=local`) runs a real diffusers + peft SD 1.5 LoRA loop on MPS/CUDA, emitting a real loss curve, real checkpoints, and real generated samples to B2 — a multi-minute job; see [Trainer & Captioner Providers](trainer-providers.md)
+- The **default** `local` trainer runs a real diffusers + peft SD 1.5 LoRA loop on MPS/CUDA, emitting a real loss curve, real checkpoints, and real generated samples to B2 — a multi-minute job that needs the ML stack installed; see [Trainer & Captioner Providers](trainer-providers.md)
 
 ## Edge Cases
 - Train without dataset → 400; without captions → 400

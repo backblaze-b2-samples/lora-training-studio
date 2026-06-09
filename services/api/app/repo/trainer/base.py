@@ -4,8 +4,9 @@ A `Trainer` drives one run: it emits step-by-step progress, writes
 intermediate checkpoints and a growing sample gallery to B2, and produces
 the final `.safetensors` LoRA. Implementations live alongside this file and
 are selected in `config` (`settings.trainer_provider`). External training
-SDKs (e.g. `replicate`) are imported *lazily inside their adapter* so the
-default path needs no GPU and no API keys.
+SDKs (e.g. `replicate`) and the local trainer's ML stack are imported *lazily
+inside their adapter*, so importing this package needs no GPU or API key — the
+default `local` trainer pulls in torch only when a run actually starts.
 """
 
 from collections.abc import Callable

@@ -1,5 +1,10 @@
 # Scaffold plan — `lora-training-studio`
 
+> **Note (2026-06-09):** this historical scaffold plan describes the trainer as
+> "simulated by default." That default was later flipped — `local` (real
+> on-device SD 1.5) is now the default trainer, with `simulated` as the opt-in
+> fallback. See `docs/exec-plans/completed/2026-06-09-local-trainer-default.md`.
+
 Derived from `vibe-coding-starter-kit` (cloned fresh at HEAD `8fc490f`).
 Source of truth for the delta: `.claude/scratch/vcsk-264c379d-32b8-4a4b-bc37-c563ab6b59a2/`.
 

@@ -35,10 +35,12 @@ class StageStatus(StrEnum):
 
 
 class RunConfig(BaseModel):
-    """User-supplied training configuration. Labels only for the base model —
-    the simulated trainer does not load real weights."""
+    """User-supplied training configuration. `base_model` is a display label
+    only: the local (default) trainer always fine-tunes SD 1.5
+    (`settings.local_sd_model_id`) and the simulated trainer loads no real
+    weights."""
 
-    base_model: str = "sdxl-base-1.0"
+    base_model: str = "sd-1.5"
     instance_token: str = Field(default="sks", max_length=120)
     steps: int = Field(default=1000, ge=10, le=10000)
     rank: int = Field(default=16, ge=1, le=256)
