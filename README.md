@@ -15,7 +15,17 @@ An end-to-end, browser-based **LoRA fine-tuning workflow** for image models, wit
 
 ## What it looks like
 
-Screenshots are added when this sample is published. (Run it locally with `pnpm dev` to see the dashboard, the Train flow, and the LoRA Library.)
+**Dashboard** — run counts, LoRAs produced, training-image totals, and total B2 usage, with a storage-by-artifact-type breakdown and a recent-runs table.
+
+![Dashboard with run metrics and a B2 storage-by-artifact breakdown](docs/images/dashboard.png)
+
+**LoRA Library** — every run scoped to the `lora-training/` prefix as a card grid, each showing its image count, instance token, status, and creation time.
+
+![LoRA Library showing completed training runs as cards](docs/images/library.png)
+
+**Train** — name a run and set its training config (instance token, base model, steps, rank, learning rate) before adding images and captions.
+
+![Train page with the new-run configuration form](docs/images/train.png)
 
 ## How "versioned on B2" works
 
