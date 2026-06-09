@@ -2,9 +2,10 @@
 
 Patches `b2_client.get_s3_client` with a dict-backed fake S3 client so the
 whole lifecycle (create -> dataset -> caption -> train -> samples -> LoRA)
-runs without touching the network. The fixture pins TRAINER_PROVIDER=simulated
-so the zero-dependency SimulatedTrainer and TemplatedCaptioner are exercised —
-no GPU, no API keys — regardless of the default provider (now "local").
+runs without touching the network. The fixture pins the simulated trainer and
+templated captioner so the zero-dependency SimulatedTrainer and
+TemplatedCaptioner are exercised — no GPU, no API keys, no network — regardless
+of the configured defaults or a local .env.
 """
 
 import io
@@ -67,10 +68,12 @@ class _FakeS3:
 def fake_b2(monkeypatch):
     fake = _FakeS3()
     monkeypatch.setattr(b2_client, "get_s3_client", lambda: fake)
-    # Pin the simulated trainer: these end-to-end tests exercise the zero-
-    # dependency path and must stay hermetic regardless of the default provider
-    # (now "local" — a real, multi-minute on-device SD 1.5 run needing torch).
+    # Pin the zero-dependency providers so these end-to-end tests stay hermetic
+    # (no GPU, no API keys, no network) regardless of the configured defaults or
+    # a local .env: the default trainer is "local" (a real, multi-minute SD 1.5
+    # run needing torch) and a .env may set CAPTIONER_PROVIDER=claude.
     monkeypatch.setattr(settings, "trainer_provider", "simulated")
+    monkeypatch.setattr(settings, "captioner_provider", "templated")
     monkeypatch.setattr(settings, "simulated_step_seconds", 0.0)
     return fake
 
