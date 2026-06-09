@@ -1,0 +1,19 @@
+# Optional ML stack for the real on-device LoRA trainer (TRAINER_PROVIDER=local).
+#
+# Heavy (~3 GB) and only needed if you actually want to fine-tune a real LoRA
+# locally instead of the zero-config simulated default. Install on top of the
+# base requirements:
+#
+#   pip install -r requirements.txt
+#   pip install -r requirements-local-trainer.txt
+#
+# Targets Apple Silicon (MPS); the same stack works on CUDA. fp32 is forced on
+# MPS (see app/repo/trainer/_sd_lora.py). First training run downloads the
+# ~4 GB Stable Diffusion 1.5 base from HuggingFace.
+torch>=2.4
+torchvision>=0.19
+diffusers>=0.31
+transformers>=4.44
+peft>=0.13
+accelerate>=1.0
+safetensors>=0.4
