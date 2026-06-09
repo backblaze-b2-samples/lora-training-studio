@@ -27,6 +27,18 @@ An end-to-end, browser-based **LoRA fine-tuning workflow** for image models, wit
 
 ![Train page with the new-run configuration form](docs/images/train.png)
 
+### Inside a run
+
+Open a run to walk its pipeline end to end — the stepper tracks `dataset → captions → training → samples → download`, and every artifact along the way lives on B2 under that run's prefix.
+
+**Dataset & captioning** — upload a handful of reference images to one B2 prefix, then auto-caption each (offline by default) and edit any caption before training.
+
+![Run detail: the pipeline stepper above the dataset grid of reference images and the per-image caption editor](docs/images/pipeline-dataset-captions.png)
+
+**Training & samples** — watch the loss curve descend live while a sample gallery fills in at each checkpoint, converging on the final LoRA you download as a `.safetensors`.
+
+![Run detail: the training loss curve above a sample gallery showing outputs at steps 250–1000 and the final checkpoint](docs/images/pipeline-training-samples.png)
+
 ## How "versioned on B2" works
 
 Every run, every checkpoint step, and every sample set is retained as a distinct, addressable object under `lora-training/{run_id}/...`. This is **keyed/immutable retention**, not S3 bucket versioning — no bucket-level versioning is enabled and there are **no b2-native API calls**, keeping everything inside the S3-compatible standard.
