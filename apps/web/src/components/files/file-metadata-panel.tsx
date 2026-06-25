@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatUploadedDate } from "@/lib/utils";
 import type { FileMetadataDetail } from "@lora-training-studio/shared";
 
 interface FileMetadataPanelProps {
@@ -97,7 +98,7 @@ export function FileMetadataPanel({ metadata }: FileMetadataPanelProps) {
         <Separator />
         <MetaRow
           label="Uploaded"
-          value={new Date(metadata.uploaded_at).toLocaleString()}
+          value={formatUploadedDate(metadata.uploaded_at)}
         />
       </CardContent>
     </Card>
