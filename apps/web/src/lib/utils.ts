@@ -26,3 +26,13 @@ export function formatDate(dateStr: string) {
     minute: "2-digit",
   });
 }
+
+export function formatUploadedDate(dateStr: string) {
+  const date = new Date(dateStr);
+
+  if (Number.isNaN(date.getTime())) {
+    return dateStr;
+  }
+
+  return `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+}

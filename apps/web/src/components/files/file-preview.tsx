@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePreviewUrl } from "@/lib/queries";
-import { formatDate } from "@/lib/utils";
+import { formatUploadedDate } from "@/lib/utils";
 import type { FileMetadata } from "@lora-training-studio/shared";
 
 interface FilePreviewProps {
@@ -79,7 +79,7 @@ export function FilePreview({ file, open, onOpenChange }: FilePreviewProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Uploaded</span>
-                <span>{formatDate(file.uploaded_at)}</span>
+                <span>{formatUploadedDate(file.uploaded_at)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Key</span>
